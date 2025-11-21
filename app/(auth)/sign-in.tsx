@@ -1,12 +1,10 @@
 import { useOAuth, useSignIn } from '@clerk/clerk-expo'
 import * as Linking from 'expo-linking'
 import { Href, Link, useRouter } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import React, { useCallback, useState } from 'react'
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { useWarmUpBrowser } from '../../hooks/useWarmUpBrowser'
 
-WebBrowser.maybeCompleteAuthSession()
 
 export default function SignInScreen() {
     useWarmUpBrowser()
@@ -57,6 +55,7 @@ export default function SignInScreen() {
         <SafeAreaView style={styles.safe}>
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
                 <View style={styles.header}>
+                    <Text style={styles.appName}>Personal Finance Assistant</Text>
                     <Text style={styles.title}>Welcome Back</Text>
                     <Text style={styles.subtitle}>Sign in to continue</Text>
                 </View>
@@ -124,6 +123,7 @@ const styles = StyleSheet.create({
     safe: { flex: 1, backgroundColor: '#fff' },
     container: { flex: 1, padding: 24, justifyContent: 'center' },
     header: { marginBottom: 32, alignItems: 'center' },
+    appName: { fontSize: 24, fontFamily: 'CinzelBlack', marginBottom: 16, textAlign: 'center', color: '#000' },
     title: { fontSize: 32, fontFamily: 'CinzelBlack', marginBottom: 8, textAlign: 'center' },
     subtitle: { fontSize: 16, color: '#666', fontFamily: 'CinzelBlack' },
     form: { width: '100%' },

@@ -6,7 +6,7 @@ export default function RootLayout() {
     const { isSignedIn } = useAuth()
 
     if (!isSignedIn) {
-        return <Redirect href={'/sign-in' as Href} />
+        return <Redirect href={'/(auth)/sign-in' as Href} />
     }
 
     return (
@@ -34,7 +34,7 @@ export default function RootLayout() {
                 }}
             />
             <Tabs.Screen
-                name="index"
+                name="home"
                 options={{
                     title: 'Home',
                     tabBarIcon: ({ color }) => <Ionicons name="home" size={32} color={color} />,
