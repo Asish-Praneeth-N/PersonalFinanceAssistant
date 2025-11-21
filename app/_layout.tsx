@@ -1,7 +1,7 @@
 // app/_layout.tsx
 import { ClerkLoaded, ClerkProvider } from "@clerk/clerk-expo";
 import { useFonts } from "expo-font";
-import { Slot } from "expo-router";
+import { Stack } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
@@ -61,7 +61,12 @@ export default function RootLayout() {
       <ThemeProvider>
         <ClerkLoaded>
           <StatusBar style="dark" translucent backgroundColor="transparent" />
-          <Slot />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(root)" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(stack)" />
+            <Stack.Screen name="index" />
+          </Stack>
         </ClerkLoaded>
       </ThemeProvider>
     </ClerkProvider>

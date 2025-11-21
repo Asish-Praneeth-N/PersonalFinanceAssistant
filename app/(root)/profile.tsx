@@ -37,14 +37,14 @@ export default function ProfileScreen() {
             title: 'Change Password',
             subtitle: 'Update your account password',
             icon: 'lock-closed-outline',
-            onPress: () => router.push('/(root)/change-password' as any),
+            onPress: () => router.push('/(stack)/change-password' as any),
         },
         {
             id: 'settings',
             title: 'Settings',
             subtitle: 'App preferences and configuration',
             icon: 'settings-outline',
-            onPress: () => router.push('/(root)/settings' as any),
+            onPress: () => router.push('/(stack)/settings' as any),
         },
     ]
 

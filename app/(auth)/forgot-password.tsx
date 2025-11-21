@@ -132,7 +132,7 @@ export default function ForgotPasswordScreen() {
 
     const handleSuccessNavigation = () => {
         setShowSuccessModal(false)
-        router.replace('/sign-in')
+        router.replace('/(auth)/sign-in')
     }
 
     return (

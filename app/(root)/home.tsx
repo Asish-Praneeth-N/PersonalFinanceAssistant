@@ -28,7 +28,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     contentContainer: { flex: 1, padding: 24 },
-    header: { marginTop: 24 },
+    header: { paddingTop: 24, paddingBottom: 16 },
     title: { fontSize: 32, fontFamily: 'CinzelBlack', marginBottom: 8 },
     subtitle: { fontSize: 16, fontFamily: 'CinzelBlack' },
     content: { flex: 1, justifyContent: 'center', alignItems: 'center' },

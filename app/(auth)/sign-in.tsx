@@ -2,7 +2,7 @@ import { useOAuth, useSignIn } from '@clerk/clerk-expo'
 import { Ionicons } from '@expo/vector-icons'
 import { Link, useRouter } from 'expo-router'
 import React, { useCallback, useState } from 'react'
-import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useWarmUpBrowser } from '../../hooks/useWarmUpBrowser'
 import { useTheme } from '../context/ThemeContext'
@@ -47,17 +47,26 @@ export default function SignInScreen() {
     }, [isLoaded, emailAddress, password])
 
     const onGoogleSignInPress = useCallback(async () => {
-        Alert.alert('Coming Soon', 'Google Sign-In is currently being configured.')
+        try {
+            const { createdSessionId, setActive } = await startOAuthFlow()
+            if (createdSessionId) {
+                await setActive!({ session: createdSessionId })
+                router.replace('/(root)/home')
+            } else {
+                // Use signIn or signUp for next steps such as MFA
+                Alert.alert('Error', 'Google Sign-In failed. Please try again.')
+            }
+        } catch (err: any) {
+            console.error('OAuth error', err)
+            // Check for specific error codes if needed
+            Alert.alert('Error', err.errors?.[0]?.message || 'An error occurred during Google Sign-In')
+        }
     }, [])
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
             <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
                 <View style={styles.header}>
-                    <Image
-                        source={{ uri: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=2071&auto=format&fit=crop' }}
-                        style={styles.logo}
-                    />
                     <Text style={[styles.appName, { color: colors.text }]}>Personal Finance Assistant</Text>
                     <Text style={[styles.title, { color: colors.text }]}>Welcome Back</Text>
                     <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Sign in to continue your financial journey</Text>
@@ -157,6 +166,7 @@ const styles = StyleSheet.create({
     scrollContent: {
         flexGrow: 1,
         padding: 24,
+        justifyContent: 'center',
     },
     header: {
         alignItems: 'center',
@@ -210,7 +220,6 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         fontSize: 16,
-        fontFamily: 'CinzelBlack',
         height: '100%',
     },
     forgotPassword: {

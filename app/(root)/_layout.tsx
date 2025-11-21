@@ -64,19 +64,7 @@ export default function RootLayout() {
                     tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
                 }}
             />
-            <Tabs.Screen
-                name="settings"
-                options={{
-                    href: null, // Hide from tab bar
-                }}
-            />
-            <Tabs.Screen
-                name="change-password"
-                options={{
-                    href: null, // Hide from tab bar
-                    tabBarStyle: { display: 'none' }, // Hide tab bar on this screen
-                }}
-            />
+
         </Tabs>
     )
 }

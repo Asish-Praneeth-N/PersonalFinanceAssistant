@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
-        paddingTop: 16,
+        paddingTop: 24,
         paddingBottom: 16,
     },
     backButton: {
@@ -177,7 +177,6 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 16,
         fontSize: 16,
-        fontFamily: 'CinzelBlack',
     },
     button: {
         padding: 16,
