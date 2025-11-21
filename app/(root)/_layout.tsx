@@ -20,13 +20,6 @@ export default function RootLayout() {
             }}
         >
             <Tabs.Screen
-                name="index"
-                options={{
-                    title: 'Home',
-                    tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
-                }}
-            />
-            <Tabs.Screen
                 name="expenses"
                 options={{
                     title: 'Expenses',
@@ -38,6 +31,14 @@ export default function RootLayout() {
                 options={{
                     title: 'Goals',
                     tabBarIcon: ({ color, size }) => <Ionicons name="trophy" size={size} color={color} />,
+                }}
+            />
+            <Tabs.Screen
+                name="index"
+                options={{
+                    title: 'Home',
+                    tabBarIcon: ({ color }) => <Ionicons name="home" size={32} color={color} />,
+                    tabBarLabelStyle: { fontFamily: 'CinzelBlack', fontSize: 12, fontWeight: 'bold' },
                 }}
             />
             <Tabs.Screen

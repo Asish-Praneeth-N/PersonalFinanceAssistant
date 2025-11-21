@@ -57,7 +57,7 @@ export default function SignUpScreen() {
     const onGoogleSignUpPress = async () => {
         try {
             const { createdSessionId, setActive } = await startOAuthFlow({
-                redirectUrl: Linking.createURL('/dashboard', { scheme: 'personalfinanceassistan' }),
+                redirectUrl: Linking.createURL('/', { scheme: 'personalfinanceassistan' }),
             })
 
             if (createdSessionId) {

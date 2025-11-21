@@ -40,7 +40,7 @@ export default function SignInScreen() {
     const onGoogleSignInPress = useCallback(async () => {
         try {
             const { createdSessionId, signIn, signUp, setActive } = await startOAuthFlow({
-                redirectUrl: Linking.createURL('/dashboard', { scheme: 'personalfinanceassistan' }),
+                redirectUrl: Linking.createURL('/', { scheme: 'personalfinanceassistan' }),
             })
 
             if (createdSessionId) {
