@@ -1,4 +1,4 @@
-import { useUser } from '@clerk/clerk-expo'
+import { useSignIn, useUser } from '@clerk/clerk-expo'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import React, { useState } from 'react'
@@ -16,6 +16,8 @@ export default function ChangePasswordScreen() {
     const [newPassword, setNewPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [loading, setLoading] = useState(false)
+
+    const { signIn } = useSignIn()
 
     const handleChangePassword = async () => {
         if (!currentPassword || !newPassword || !confirmPassword) {
@@ -35,16 +37,36 @@ export default function ChangePasswordScreen() {
 
         setLoading(true)
         try {
+            // Verify current password by attempting to sign in
+            if (!signIn) {
+                throw new Error('Sign in not initialized')
+            }
+
+            // Create a sign in attempt to verify the password
+            // We don't set it as active, just check if it works
+            await signIn.create({
+                identifier: user?.emailAddresses[0].emailAddress || '',
+                password: currentPassword,
+            })
+
+            // If successful, update the password (without passing currentPassword)
             await user?.updatePassword({
-                currentPassword,
                 newPassword,
             })
+
             Alert.alert('Success', 'Password updated successfully', [
                 { text: 'OK', onPress: () => router.back() },
             ])
         } catch (err: any) {
             console.error(JSON.stringify(err, null, 2))
-            Alert.alert('Error', err.errors?.[0]?.message || 'Failed to update password')
+            // Handle specific Clerk errors
+            const errorMessage = err.errors?.[0]?.message || err.message || 'Failed to update password'
+
+            if (errorMessage.includes('password')) {
+                Alert.alert('Error', 'Incorrect current password')
+            } else {
+                Alert.alert('Error', errorMessage)
+            }
         } finally {
             setLoading(false)
         }
