@@ -1,18 +1,23 @@
 import React from 'react'
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTheme } from '../context/ThemeContext'
 
 export default function InsightsScreen() {
+    const insets = useSafeAreaInsets()
+    const { colors } = useTheme()
+
     return (
-        <SafeAreaView style={styles.safe}>
-            <View style={styles.container}>
-                <Text style={styles.title}>Insights</Text>
+        <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
+            <View style={styles.content}>
+                <Text style={[styles.text, { color: colors.text }]}>Insights Screen</Text>
             </View>
-        </SafeAreaView>
+        </View>
     )
 }
 
 const styles = StyleSheet.create({
-    safe: { flex: 1, backgroundColor: '#fff' },
-    container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    title: { fontSize: 24, fontFamily: 'CinzelBlack' },
+    container: { flex: 1 },
+    content: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    text: { fontSize: 24, fontFamily: 'CinzelBlack' },
 })

@@ -1,9 +1,11 @@
 import { useOAuth, useSignIn } from '@clerk/clerk-expo'
-import * as Linking from 'expo-linking'
-import { Href, Link, useRouter } from 'expo-router'
+import { Ionicons } from '@expo/vector-icons'
+import { Link, useRouter } from 'expo-router'
 import React, { useCallback, useState } from 'react'
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useWarmUpBrowser } from '../../hooks/useWarmUpBrowser'
+import { useTheme } from '../context/ThemeContext'
 
 
 export default function SignInScreen() {
@@ -11,154 +13,274 @@ export default function SignInScreen() {
     const { signIn, setActive, isLoaded } = useSignIn()
     const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' })
     const router = useRouter()
+    const insets = useSafeAreaInsets()
+    const { colors } = useTheme()
 
     const [emailAddress, setEmailAddress] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
 
     const onSignInPress = useCallback(async () => {
         if (!isLoaded) return
 
         setLoading(true)
         try {
-            const completeSignIn = await signIn.create({
+            const signInAttempt = await signIn.create({
                 identifier: emailAddress,
                 password,
             })
 
-            // This is an important step that shows the user is logged in
-            await setActive({ session: completeSignIn.createdSessionId })
+            if (signInAttempt.status === 'complete') {
+                await setActive({ session: signInAttempt.createdSessionId })
+                router.replace('/(root)/home')
+            } else {
+                console.error(JSON.stringify(signInAttempt, null, 2))
+                Alert.alert('Error', 'Log in failed. Please try again.')
+            }
         } catch (err: any) {
-            Alert.alert('Error', err.errors[0].message)
+            console.error(JSON.stringify(err, null, 2))
+            Alert.alert('Error', err.errors?.[0]?.message || 'Log in failed')
         } finally {
             setLoading(false)
         }
     }, [isLoaded, emailAddress, password])
 
     const onGoogleSignInPress = useCallback(async () => {
-        try {
-            const { createdSessionId, signIn, signUp, setActive } = await startOAuthFlow({
-                redirectUrl: Linking.createURL('/', { scheme: 'personalfinanceassistan' }),
-            })
-
-            if (createdSessionId) {
-                setActive!({ session: createdSessionId })
-            } else {
-                // Use signIn or signUp for next steps such as MFA
-            }
-        } catch (err) {
-            console.error('OAuth error', err)
-        }
+        Alert.alert('Coming Soon', 'Google Sign-In is currently being configured.')
     }, [])
 
     return (
-        <SafeAreaView style={styles.safe}>
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
+            <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
                 <View style={styles.header}>
-                    <Text style={styles.appName}>Personal Finance Assistant</Text>
-                    <Text style={styles.title}>Welcome Back</Text>
-                    <Text style={styles.subtitle}>Sign in to continue</Text>
+                    <Image
+                        source={{ uri: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=2071&auto=format&fit=crop' }}
+                        style={styles.logo}
+                    />
+                    <Text style={[styles.appName, { color: colors.text }]}>Personal Finance Assistant</Text>
+                    <Text style={[styles.title, { color: colors.text }]}>Welcome Back</Text>
+                    <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Sign in to continue your financial journey</Text>
                 </View>
 
                 <View style={styles.form}>
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Email</Text>
-                        <TextInput
-                            autoCapitalize="none"
-                            value={emailAddress}
-                            placeholder="Enter email"
-                            onChangeText={(email) => setEmailAddress(email)}
-                            style={styles.input}
-                        />
+                        <Text style={[styles.label, { color: colors.text }]}>Email Address</Text>
+                        <View style={[styles.inputContainer, { borderColor: colors.border, backgroundColor: colors.background }]}>
+                            <Ionicons name="mail-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
+                            <TextInput
+                                style={[styles.input, { color: colors.text }]}
+                                autoCapitalize="none"
+                                value={emailAddress}
+                                placeholder="Enter your email"
+                                placeholderTextColor={colors.textSecondary}
+                                onChangeText={setEmailAddress}
+                                keyboardType="email-address"
+                            />
+                        </View>
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Password</Text>
-                        <TextInput
-                            value={password}
-                            placeholder="Enter password"
-                            secureTextEntry={true}
-                            onChangeText={(password) => setPassword(password)}
-                            style={styles.input}
-                        />
-                    </View>
-
-                    <View style={{ alignItems: 'flex-end', marginBottom: 20 }}>
-                        <Link href={"/forgot-password" as Href} asChild>
-                            <Pressable>
-                                <Text style={{ color: '#666', fontFamily: 'CinzelBlack', fontSize: 14 }}>Forgot Password?</Text>
+                        <Text style={[styles.label, { color: colors.text }]}>Password</Text>
+                        <View style={[styles.inputContainer, { borderColor: colors.border, backgroundColor: colors.background }]}>
+                            <Ionicons name="lock-closed-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
+                            <TextInput
+                                style={[styles.input, { color: colors.text }]}
+                                value={password}
+                                placeholder="Enter your password"
+                                placeholderTextColor={colors.textSecondary}
+                                secureTextEntry={!showPassword}
+                                onChangeText={setPassword}
+                            />
+                            <Pressable onPress={() => setShowPassword(!showPassword)}>
+                                <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={colors.textSecondary} />
                             </Pressable>
-                        </Link>
+                        </View>
                     </View>
 
-                    <Pressable onPress={onSignInPress} style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}>
-                        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Sign In</Text>}
+                    <Pressable onPress={() => router.push('/(auth)/forgot-password')} style={styles.forgotPassword}>
+                        <Text style={[styles.forgotPasswordText, { color: colors.primary }]}>Forgot Password?</Text>
                     </Pressable>
 
-                    <View style={styles.divider}>
-                        <View style={styles.line} />
-                        <Text style={styles.orText}>OR</Text>
-                        <View style={styles.line} />
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.button,
+                            { backgroundColor: colors.primary },
+                            pressed && styles.buttonPressed,
+                        ]}
+                        onPress={onSignInPress}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color={colors.background} />
+                        ) : (
+                            <Text style={[styles.buttonText, { color: colors.background }]}>Sign In</Text>
+                        )}
+                    </Pressable>
+
+                    <View style={styles.dividerContainer}>
+                        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+                        <Text style={[styles.dividerText, { color: colors.textSecondary }]}>OR</Text>
+                        <View style={[styles.divider, { backgroundColor: colors.border }]} />
                     </View>
 
-                    <Pressable onPress={onGoogleSignInPress} style={({ pressed }) => [styles.googleButton, pressed && styles.buttonPressed]}>
-                        <Text style={styles.googleButtonText}>Sign in with Google</Text>
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.googleButton,
+                            { borderColor: colors.border, backgroundColor: colors.card },
+                            pressed && { backgroundColor: colors.background },
+                        ]}
+                        onPress={onGoogleSignInPress}
+                    >
+                        <Ionicons name="logo-google" size={20} color={colors.text} />
+                        <Text style={[styles.googleButtonText, { color: colors.text }]}>Continue with Google</Text>
                     </Pressable>
 
                     <View style={styles.footer}>
-                        <Text style={styles.footerText}>Don't have an account?</Text>
-                        <Link href={"/sign-up" as Href} asChild>
+                        <Text style={[styles.footerText, { color: colors.textSecondary }]}>Don't have an account?</Text>
+                        <Link href="/(auth)/sign-up" asChild>
                             <Pressable>
-                                <Text style={styles.link}>Sign Up</Text>
+                                <Text style={[styles.linkText, { color: colors.primary }]}>Sign Up</Text>
                             </Pressable>
                         </Link>
                     </View>
                 </View>
-            </KeyboardAvoidingView>
-        </SafeAreaView>
+            </ScrollView>
+        </View>
     )
 }
 
 const styles = StyleSheet.create({
-    safe: { flex: 1, backgroundColor: '#fff' },
-    container: { flex: 1, padding: 24, justifyContent: 'center' },
-    header: { marginBottom: 32, alignItems: 'center' },
-    appName: { fontSize: 24, fontFamily: 'CinzelBlack', marginBottom: 16, textAlign: 'center', color: '#000' },
-    title: { fontSize: 32, fontFamily: 'CinzelBlack', marginBottom: 8, textAlign: 'center' },
-    subtitle: { fontSize: 16, color: '#666', fontFamily: 'CinzelBlack' },
-    form: { width: '100%' },
-    inputGroup: { marginBottom: 20 },
-    label: { fontSize: 14, marginBottom: 8, fontFamily: 'CinzelBlack', color: '#333' },
-    input: {
+    container: {
+        flex: 1,
+    },
+    scrollContent: {
+        flexGrow: 1,
+        padding: 24,
+    },
+    header: {
+        alignItems: 'center',
+        marginBottom: 32,
+        marginTop: 20,
+    },
+    logo: {
+        width: 80,
+        height: 80,
+        borderRadius: 20,
+        marginBottom: 16,
+    },
+    appName: {
+        fontSize: 20,
+        fontFamily: 'CinzelBlack',
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    title: {
+        fontSize: 28,
+        fontFamily: 'CinzelBlack',
+        marginBottom: 8,
+    },
+    subtitle: {
+        fontSize: 14,
+        textAlign: 'center',
+        fontFamily: 'CinzelBlack',
+    },
+    form: {
+        width: '100%',
+    },
+    inputGroup: {
+        marginBottom: 20,
+    },
+    label: {
+        fontSize: 14,
+        marginBottom: 8,
+        fontFamily: 'CinzelBlack',
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
         borderWidth: 1,
-        borderColor: '#ddd',
-        padding: 16,
         borderRadius: 12,
+        paddingHorizontal: 16,
+        height: 56,
+    },
+    inputIcon: {
+        marginRight: 12,
+    },
+    input: {
+        flex: 1,
         fontSize: 16,
-        backgroundColor: '#f9f9f9',
+        fontFamily: 'CinzelBlack',
+        height: '100%',
+    },
+    forgotPassword: {
+        alignSelf: 'flex-end',
+        marginBottom: 24,
+    },
+    forgotPasswordText: {
+        fontSize: 14,
+        fontFamily: 'CinzelBlack',
     },
     button: {
-        backgroundColor: '#000',
-        padding: 16,
+        height: 56,
         borderRadius: 12,
+        justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 8,
+        marginBottom: 24,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 4,
     },
-    buttonPressed: { opacity: 0.8 },
-    buttonText: { color: '#fff', fontSize: 16, fontFamily: 'CinzelBlack' },
-    divider: { flexDirection: 'row', alignItems: 'center', marginVertical: 24 },
-    line: { flex: 1, height: 1, backgroundColor: '#eee' },
-    orText: { marginHorizontal: 16, color: '#999', fontFamily: 'CinzelBlack' },
+    buttonPressed: {
+        opacity: 0.9,
+        transform: [{ scale: 0.99 }],
+    },
+    buttonText: {
+        fontSize: 16,
+        fontFamily: 'CinzelBlack',
+    },
+    dividerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 24,
+    },
+    divider: {
+        flex: 1,
+        height: 1,
+    },
+    dividerText: {
+        marginHorizontal: 16,
+        fontSize: 14,
+        fontFamily: 'CinzelBlack',
+    },
     googleButton: {
-        backgroundColor: '#fff',
+        flexDirection: 'row',
+        height: 56,
         borderWidth: 1,
-        borderColor: '#ddd',
-        padding: 16,
         borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 24,
+    },
+    googleButtonText: {
+        fontSize: 16,
+        fontFamily: 'CinzelBlack',
+        marginLeft: 12,
+    },
+    footer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
         alignItems: 'center',
     },
-    googleButtonText: { color: '#000', fontSize: 16, fontFamily: 'CinzelBlack' },
-    footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 32, alignItems: 'center' },
-    footerText: { color: '#666', marginRight: 8, fontFamily: 'CinzelBlack' },
-    link: { color: '#000', fontFamily: 'CinzelBlack', textDecorationLine: 'underline' },
+    footerText: {
+        fontSize: 14,
+        marginRight: 4,
+        fontFamily: 'CinzelBlack',
+    },
+    linkText: {
+        fontSize: 14,
+        fontFamily: 'CinzelBlack',
+    },
 })

@@ -6,6 +6,7 @@ import * as SecureStore from "expo-secure-store";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { ActivityIndicator, View } from "react-native";
+import { ThemeProvider } from "./context/ThemeContext";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
@@ -57,10 +58,12 @@ export default function RootLayout() {
 
   return (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <ClerkLoaded>
-        <StatusBar style="dark" translucent backgroundColor="transparent" />
-        <Slot />
-      </ClerkLoaded>
+      <ThemeProvider>
+        <ClerkLoaded>
+          <StatusBar style="dark" translucent backgroundColor="transparent" />
+          <Slot />
+        </ClerkLoaded>
+      </ThemeProvider>
     </ClerkProvider>
   );
 }

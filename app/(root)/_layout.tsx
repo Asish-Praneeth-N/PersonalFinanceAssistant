@@ -1,9 +1,11 @@
 import { useAuth } from '@clerk/clerk-expo'
 import { Ionicons } from '@expo/vector-icons'
 import { Href, Redirect, Tabs } from 'expo-router'
+import { useTheme } from '../context/ThemeContext'
 
 export default function RootLayout() {
     const { isSignedIn } = useAuth()
+    const { colors } = useTheme()
 
     if (!isSignedIn) {
         return <Redirect href={'/(auth)/sign-in' as Href} />
@@ -13,10 +15,17 @@ export default function RootLayout() {
         <Tabs
             screenOptions={{
                 headerShown: false,
-                tabBarActiveTintColor: '#000',
-                tabBarInactiveTintColor: '#888',
+                tabBarActiveTintColor: colors.text,
+                tabBarInactiveTintColor: colors.textSecondary,
                 tabBarLabelStyle: { fontFamily: 'CinzelBlack', fontSize: 10 },
-                tabBarStyle: { borderTopWidth: 1, borderTopColor: '#eee', height: 60, paddingBottom: 8, paddingTop: 8 },
+                tabBarStyle: {
+                    borderTopWidth: 1,
+                    borderTopColor: colors.border,
+                    height: 60,
+                    paddingBottom: 8,
+                    paddingTop: 8,
+                    backgroundColor: colors.card
+                },
             }}
         >
             <Tabs.Screen
@@ -53,6 +62,19 @@ export default function RootLayout() {
                 options={{
                     title: 'Profile',
                     tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
+                }}
+            />
+            <Tabs.Screen
+                name="settings"
+                options={{
+                    href: null, // Hide from tab bar
+                }}
+            />
+            <Tabs.Screen
+                name="change-password"
+                options={{
+                    href: null, // Hide from tab bar
+                    tabBarStyle: { display: 'none' }, // Hide tab bar on this screen
                 }}
             />
         </Tabs>
