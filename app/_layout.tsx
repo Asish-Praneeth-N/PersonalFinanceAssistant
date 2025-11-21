@@ -3,6 +3,7 @@ import { ClerkLoaded, ClerkProvider } from "@clerk/clerk-expo";
 import { useFonts } from "expo-font";
 import { Slot } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { ActivityIndicator, View } from "react-native";
 
@@ -57,6 +58,7 @@ export default function RootLayout() {
   return (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
       <ClerkLoaded>
+        <StatusBar style="dark" translucent backgroundColor="transparent" />
         <Slot />
       </ClerkLoaded>
     </ClerkProvider>

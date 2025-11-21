@@ -84,6 +84,14 @@ export default function SignInScreen() {
                         />
                     </View>
 
+                    <View style={{ alignItems: 'flex-end', marginBottom: 20 }}>
+                        <Link href={"/forgot-password" as Href} asChild>
+                            <Pressable>
+                                <Text style={{ color: '#666', fontFamily: 'CinzelBlack', fontSize: 14 }}>Forgot Password?</Text>
+                            </Pressable>
+                        </Link>
+                    </View>
+
                     <Pressable onPress={onSignInPress} style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}>
                         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Sign In</Text>}
                     </Pressable>
