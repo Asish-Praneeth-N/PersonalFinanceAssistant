@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Rules for the 'goals' collection
+    match /goals/{goalId} {
+      // Allow read/write access to everyone.
+      // IMPORTANT: Since we are using Clerk for authentication and NOT Firebase Auth, 
+      // 'request.auth' will always be null. We cannot verify the user identity in these rules.
+      // Security relies on the client app filtering by userId (which we trust for this setup).
+      allow read, write: if true;
+    }
+
+    // Default deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
