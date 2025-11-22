@@ -11,6 +11,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Rules for the 'expenses' collection
+    match /expenses/{expenseId} {
+      allow read, write: if true;
+    }
+
     // Default deny all other access
     match /{document=**} {
       allow read, write: if false;

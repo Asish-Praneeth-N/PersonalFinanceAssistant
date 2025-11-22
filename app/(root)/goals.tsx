@@ -32,7 +32,20 @@ interface Goal {
     endDate: string
     notes?: string
     createdAt: any
+    currency?: string
 }
+
+const CURRENCIES = [
+    { code: 'USD', symbol: '$', label: 'Dollar' },
+    { code: 'EUR', symbol: '€', label: 'Euro' },
+    { code: 'GBP', symbol: '£', label: 'Pound' },
+    { code: 'INR', symbol: '₹', label: 'Rupee' },
+    { code: 'JPY', symbol: '¥', label: 'Yen' },
+    { code: 'CNY', symbol: '¥', label: 'Yuan' },
+    { code: 'KRW', symbol: '₩', label: 'Won' },
+    { code: 'RUB', symbol: '₽', label: 'Ruble' },
+    { code: 'BRL', symbol: 'R$', label: 'Real' },
+]
 
 export default function GoalsScreen() {
     const insets = useSafeAreaInsets()
@@ -52,6 +65,7 @@ export default function GoalsScreen() {
     const [newGoalTitle, setNewGoalTitle] = useState('')
     const [newGoalAmount, setNewGoalAmount] = useState('')
     const [newGoalNotes, setNewGoalNotes] = useState('')
+    const [selectedCurrency, setSelectedCurrency] = useState(CURRENCIES[0])
     const [startDate, setStartDate] = useState(new Date())
     const [endDate, setEndDate] = useState(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
     const [showStartDatePicker, setShowStartDatePicker] = useState(false)
@@ -80,6 +94,7 @@ export default function GoalsScreen() {
         setNewGoalTitle('')
         setNewGoalAmount('')
         setNewGoalNotes('')
+        setSelectedCurrency(CURRENCIES[0])
         setStartDate(new Date())
         setEndDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
         setAddModalVisible(false)
@@ -112,6 +127,7 @@ export default function GoalsScreen() {
                 startDate: startDate.toISOString(),
                 endDate: endDate.toISOString(),
                 notes: newGoalNotes.trim(),
+                currency: selectedCurrency.symbol,
                 createdAt: new Date().toISOString(),
             })
             resetForm()
@@ -170,6 +186,7 @@ export default function GoalsScreen() {
     const renderGoalItem = ({ item }: { item: Goal }) => {
         const progress = Math.min((item.currentAmount / item.targetAmount) * 100, 100)
         const isMilestoneReached = progress >= 25
+        const currencySymbol = item.currency || '$'
 
         return (
             <Pressable
@@ -193,7 +210,7 @@ export default function GoalsScreen() {
                 <View style={styles.amountContainer}>
                     <Text style={[styles.targetLabel, { color: colors.textSecondary }]}>Target</Text>
                     <Text style={[styles.targetAmount, { color: colors.text }]}>
-                        ${item.targetAmount.toLocaleString()}
+                        {currencySymbol}{item.targetAmount.toLocaleString()}
                     </Text>
                 </View>
 
@@ -211,7 +228,7 @@ export default function GoalsScreen() {
                     </View>
                     <View style={styles.progressLabels}>
                         <Text style={[styles.progressText, { color: colors.textSecondary }]}>
-                            ${item.currentAmount.toLocaleString()} saved
+                            {currencySymbol}{item.currentAmount.toLocaleString()} saved
                         </Text>
                         <Text style={[styles.percentText, { color: colors.primary }]}>
                             {progress.toFixed(0)}%
@@ -301,15 +318,44 @@ export default function GoalsScreen() {
                                 </View>
 
                                 <View style={styles.inputGroup}>
-                                    <Text style={[styles.label, { color: colors.textSecondary }]}>Target Amount ($)</Text>
-                                    <TextInput
-                                        style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
-                                        placeholder="0.00"
-                                        placeholderTextColor={colors.textSecondary}
-                                        value={newGoalAmount}
-                                        onChangeText={setNewGoalAmount}
-                                        keyboardType="numeric"
-                                    />
+                                    <Text style={[styles.label, { color: colors.textSecondary }]}>Target Amount</Text>
+                                    <View style={[styles.amountInputContainer, { borderColor: colors.border, backgroundColor: colors.background }]}>
+                                        <Text style={[styles.currencyPrefix, { color: colors.text }]}>{selectedCurrency.symbol}</Text>
+                                        <TextInput
+                                            style={[styles.amountInput, { color: colors.text }]}
+                                            placeholder="0.00"
+                                            placeholderTextColor={colors.textSecondary}
+                                            value={newGoalAmount}
+                                            onChangeText={setNewGoalAmount}
+                                            keyboardType="numeric"
+                                        />
+                                    </View>
+                                </View>
+
+                                <View style={styles.inputGroup}>
+                                    <Text style={[styles.label, { color: colors.textSecondary }]}>Currency</Text>
+                                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.currencyScroll}>
+                                        {CURRENCIES.map((currency) => (
+                                            <Pressable
+                                                key={currency.code}
+                                                style={[
+                                                    styles.currencyChip,
+                                                    {
+                                                        borderColor: selectedCurrency.code === currency.code ? colors.primary : colors.border,
+                                                        backgroundColor: selectedCurrency.code === currency.code ? colors.primary : colors.background
+                                                    }
+                                                ]}
+                                                onPress={() => setSelectedCurrency(currency)}
+                                            >
+                                                <Text style={[
+                                                    styles.currencyChipText,
+                                                    { color: selectedCurrency.code === currency.code ? colors.background : colors.text }
+                                                ]}>
+                                                    {currency.symbol} {currency.code}
+                                                </Text>
+                                            </Pressable>
+                                        ))}
+                                    </ScrollView>
                                 </View>
 
                                 <View style={styles.row}>
@@ -451,17 +497,21 @@ export default function GoalsScreen() {
                                     <View style={styles.statsRow}>
                                         <View style={[styles.statCard, { backgroundColor: colors.background }]}>
                                             <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Target</Text>
-                                            <Text style={[styles.statValue, { color: colors.text }]}>${selectedGoal.targetAmount.toLocaleString()}</Text>
+                                            <Text style={[styles.statValue, { color: colors.text }]}>
+                                                {selectedGoal.currency || '$'}{selectedGoal.targetAmount.toLocaleString()}
+                                            </Text>
                                         </View>
                                         <View style={[styles.statCard, { backgroundColor: colors.background }]}>
                                             <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Saved</Text>
-                                            <Text style={[styles.statValue, { color: colors.success }]}>${selectedGoal.currentAmount.toLocaleString()}</Text>
+                                            <Text style={[styles.statValue, { color: colors.success }]}>
+                                                {selectedGoal.currency || '$'}{selectedGoal.currentAmount.toLocaleString()}
+                                            </Text>
                                         </View>
                                     </View>
                                     <View style={[styles.statCard, { backgroundColor: colors.background, marginTop: 12 }]}>
                                         <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Remaining</Text>
                                         <Text style={[styles.statValue, { color: colors.text }]}>
-                                            ${Math.max(selectedGoal.targetAmount - selectedGoal.currentAmount, 0).toLocaleString()}
+                                            {selectedGoal.currency || '$'}{Math.max(selectedGoal.targetAmount - selectedGoal.currentAmount, 0).toLocaleString()}
                                         </Text>
                                     </View>
 
@@ -679,6 +729,37 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 16,
         fontSize: 16,
+    },
+    amountInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderRadius: 12,
+        paddingHorizontal: 16,
+    },
+    currencyPrefix: {
+        fontSize: 16,
+        fontWeight: '600',
+        marginRight: 8,
+    },
+    amountInput: {
+        flex: 1,
+        paddingVertical: 16,
+        fontSize: 16,
+    },
+    currencyScroll: {
+        gap: 8,
+        paddingRight: 20,
+    },
+    currencyChip: {
+        borderWidth: 1,
+        borderRadius: 20,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+    },
+    currencyChipText: {
+        fontSize: 14,
+        fontWeight: '600',
     },
     textArea: {
         height: 80,

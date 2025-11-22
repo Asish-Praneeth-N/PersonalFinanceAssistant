@@ -6,6 +6,7 @@ import * as SecureStore from "expo-secure-store";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { ActivityIndicator, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ThemeProvider } from "./context/ThemeContext";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
@@ -60,13 +61,15 @@ export default function RootLayout() {
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
       <ThemeProvider>
         <ClerkLoaded>
-          <StatusBar style="dark" translucent backgroundColor="transparent" />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(root)" />
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(stack)" />
-            <Stack.Screen name="index" />
-          </Stack>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <StatusBar style="dark" translucent backgroundColor="transparent" />
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(root)" />
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(stack)" />
+              <Stack.Screen name="index" />
+            </Stack>
+          </GestureHandlerRootView>
         </ClerkLoaded>
       </ThemeProvider>
     </ClerkProvider>
